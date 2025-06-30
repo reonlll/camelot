@@ -18,5 +18,14 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("🏓 Pong!")
 
+@tree.command(name="残高", description="自分の所持GOLDを確認します")
+async def check_balance(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    balance = balance_data.get(user_id, 0)
+    await interaction.response.send_message(
+        f"💰 {interaction.user.mention} の残高: {balance:,} GOLD", ephemeral=True
+    )
+
+
 keep_alive()
 bot.run(os.environ['TOKEN'])  # ← TOKENはRenderで設定する
