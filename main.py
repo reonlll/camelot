@@ -1,14 +1,17 @@
 import discord
 from discord.ext import commands
+from discord import app_commands  # ← 追加
 from keep_alive import keep_alive
 import os
+import requests
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
 
-import requests
+bot = commands.Bot(command_prefix="!", intents=intents)
+tree = app_commands.CommandTree(bot)  # ← 追加：スラッシュコマンドの登録先
 
 BALANCE_BIN_ID = "685190308960c979a5ab83e4"
 API_KEY = "$2a$10$DUY6hRZaDGFQ1O6ddUbZpuDZY/k0xEA6iX69Ec2Qgc5Y4Rnihr9iO"
