@@ -8,6 +8,31 @@ intents.message_content = True
 intents.guilds = True
 intents.members = True
 
+import requests
+
+BALANCE_BIN_ID = "685190308960c979a5ab83e4"
+API_KEY = "$2a$10$DUY6hRZaDGFQ1O6ddUbZpuDZY/k0xEA6iX69Ec2Qgc5Y4Rnihr9iO"
+balance_data = {}
+
+def load_balance_data():
+    url = f"https://api.jsonbin.io/v3/b/{BALANCE_BIN_ID}/latest"
+    headers = {"X-Master-Key": API_KEY}
+    res = requests.get(url, headers=headers)
+    if res.status_code == 200:
+        global balance_data
+        balance_data = res.json()["record"]
+    else:
+        print("残高データの読み込みに失敗しました")
+
+def save_balance_data():
+    url = f"https://api.jsonbin.io/v3/b/{BALANCE_BIN_ID}"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Master-Key": API_KEY
+    }
+    requests.put(url, headers=headers, json=balance_data)
+
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
