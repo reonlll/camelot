@@ -42,18 +42,20 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send("🏓 Pong!")
-
+    
 @tree.command(name="残高", description="自分の所持GOLDを確認します")
 async def check_balance(interaction: discord.Interaction):
+    load_balance_data()
     user_id = str(interaction.user.id)
     balance = balance_data.get(user_id, 0)
     await interaction.response.send_message(
         f"💰 {interaction.user.mention} の残高: {balance:,} GOLD", ephemeral=True
     )
-
+    
 @tree.command(name="送金", description="他のユーザーにGOLDを送ります")
 @app_commands.describe(user="送金先ユーザー", amount="送る金額")
 async def send_gold(interaction: discord.Interaction, user: discord.User, amount: int):
+    load_balance_data()
     sender_id = str(interaction.user.id)
     receiver_id = str(user.id)
 
@@ -65,9 +67,9 @@ async def send_gold(interaction: discord.Interaction, user: discord.User, amount
         await interaction.response.send_message("💸 所持GOLDが足りません", ephemeral=True)
         return
 
-    # 送金処理
     balance_data[sender_id] -= amount
     balance_data[receiver_id] = balance_data.get(receiver_id, 0) + amount
+    save_balance_data()
 
     await interaction.response.send_message(
         f"✅ {amount:,} GOLD を {user.mention} に送金しました！", ephemeral=True
@@ -80,8 +82,10 @@ async def add_gold(interaction: discord.Interaction, user: discord.User, amount:
         await interaction.response.send_message("❌ 管理者専用コマンドです", ephemeral=True)
         return
 
+    load_balance_data()
     user_id = str(user.id)
     balance_data[user_id] = balance_data.get(user_id, 0) + amount
+    save_balance_data()
 
     await interaction.response.send_message(
         f"✅ {user.mention} に {amount:,} GOLD を付与しました", ephemeral=True
@@ -94,12 +98,15 @@ async def subtract_gold(interaction: discord.Interaction, user: discord.User, am
         await interaction.response.send_message("❌ 管理者専用コマンドです", ephemeral=True)
         return
 
+    load_balance_data()
     user_id = str(user.id)
     balance_data[user_id] = max(balance_data.get(user_id, 0) - amount, 0)
+    save_balance_data()
 
     await interaction.response.send_message(
         f"💸 {user.mention} から {amount:,} GOLD を減らしました", ephemeral=True
     )
+
 
 
 keep_alive()
